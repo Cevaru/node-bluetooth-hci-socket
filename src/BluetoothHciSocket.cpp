@@ -272,7 +272,7 @@ void BluetoothHciSocket::emitErrnoError() {
 
   Local<Context> context = Nan::GetCurrentContext();
   Local<Object> globalObj = Nan::GetCurrentContext()->Global();
-  Local<Function> errorConstructor = Local<Function>::Cast(globalObj->Get(context, Nan::New("Error").ToLocalChecked()));
+  Local<Function> errorConstructor = Local<Function>::Cast(globalObj->Get(context, Nan::New<String>("Error").ToLocalChecked()));
 
   Local<Value> constructorArgs[1] = {
     Nan::New(strerror(errno)).ToLocalChecked()
@@ -284,7 +284,7 @@ void BluetoothHciSocket::emitErrnoError() {
     Nan::New("error").ToLocalChecked(),
     error.ToLocalChecked()
   };
-  
+
   Nan::AsyncResource resource("nan:makeCallback");
   resource.runInAsyncScope(Nan::New<Object>(this->This), Nan::New("emit").ToLocalChecked(), 2, argv);
 }
