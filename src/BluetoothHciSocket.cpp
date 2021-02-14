@@ -395,7 +395,7 @@ NAN_METHOD(BluetoothHciSocket::BindRaw) {
   Local<Context> context = Nan::GetCurrentContext();
 
   MaybeLocal<Int32> devId = Nan::New<Int32>(0);
-  int* pDevId = NULL;
+  MaybeLocal<Int32*> pDevId = NULL;
 
   if (info.Length() > 0) {
     Local<Value> arg0 = info[0];
@@ -418,7 +418,7 @@ NAN_METHOD(BluetoothHciSocket::BindUser) {
   Local<Context> context = Nan::GetCurrentContext();
 
   MaybeLocal<Int32> devId = Nan::New<Int32>(0);
-  int* pDevId = NULL;
+  MaybeLocal<Int32>* pDevId = NULL;
 
   if (info.Length() > 0) {
     Local<Value> arg0 = info[0];
