@@ -110,6 +110,7 @@ Nan::Persistent<FunctionTemplate> BluetoothHciSocket::constructor_template;
 NAN_MODULE_INIT(BluetoothHciSocket::Init) {
   Nan::HandleScope scope;
 
+  Local<Context> context = Nan::GetCurrentContext();
   Local<FunctionTemplate> tmpl = Nan::New<FunctionTemplate>(New);
   constructor_template.Reset(tmpl);
 
@@ -126,7 +127,9 @@ NAN_MODULE_INIT(BluetoothHciSocket::Init) {
   Nan::SetPrototypeMethod(tmpl, "stop", Stop);
   Nan::SetPrototypeMethod(tmpl, "write", Write);
 
-  target->Set(Nan::New("BluetoothHciSocket").ToLocalChecked(), tmpl->GetFunction());
+
+
+  target->Set(Nan::New("BluetoothHciSocket").ToLocalChecked(), tmpl->GetFunction(context));
 }
 
 BluetoothHciSocket::BluetoothHciSocket() :
@@ -386,6 +389,7 @@ NAN_METHOD(BluetoothHciSocket::BindRaw) {
   Nan::HandleScope scope;
 
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
+  Local<Context> context = Nan::GetCurrentContext();
 
   int devId = 0;
   int* pDevId = NULL;
@@ -393,7 +397,7 @@ NAN_METHOD(BluetoothHciSocket::BindRaw) {
   if (info.Length() > 0) {
     Local<Value> arg0 = info[0];
     if (arg0->IsInt32() || arg0->IsUint32()) {
-      devId = arg0->IntegerValue();
+      devId = arg0->IntegerValue(context);
 
       pDevId = &devId;
     }
