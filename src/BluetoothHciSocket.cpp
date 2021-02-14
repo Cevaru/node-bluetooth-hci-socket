@@ -392,7 +392,7 @@ NAN_METHOD(BluetoothHciSocket::BindRaw) {
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
   Local<Context> context = Nan::GetCurrentContext();
 
-  long long int devId = 0;
+  Maybe<long long int> devId = 0;
   int* pDevId = NULL;
 
   if (info.Length() > 0) {
@@ -415,7 +415,7 @@ NAN_METHOD(BluetoothHciSocket::BindUser) {
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
   Local<Context> context = Nan::GetCurrentContext();
 
-  long long int devId = 0;
+  Maybe<long long int> devId = 0;
   int* pDevId = NULL;
 
   if (info.Length() > 0) {
