@@ -277,7 +277,7 @@ void BluetoothHciSocket::emitErrnoError() {
     Nan::New(strerror(errno)).ToLocalChecked()
   };
 
-  Local<Object> error = errorConstructor->NewInstance(context, 1, constructorArgs);
+  MaybeLocal<Object> error = errorConstructor->NewInstance(context, 1, constructorArgs);
 
   Local<Value> argv[2] = {
     Nan::New("error").ToLocalChecked(),
@@ -392,7 +392,7 @@ NAN_METHOD(BluetoothHciSocket::BindRaw) {
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
   Local<Context> context = Nan::GetCurrentContext();
 
-  Maybe<long long int> devId = 0;
+  Maybe<int64_t> devId = 0;
   int* pDevId = NULL;
 
   if (info.Length() > 0) {
@@ -415,7 +415,7 @@ NAN_METHOD(BluetoothHciSocket::BindUser) {
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
   Local<Context> context = Nan::GetCurrentContext();
 
-  Maybe<long long int> devId = 0;
+  Maybe<int64_t> devId = 0;
   int* pDevId = NULL;
 
   if (info.Length() > 0) {
