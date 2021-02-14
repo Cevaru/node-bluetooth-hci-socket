@@ -128,7 +128,7 @@ NAN_MODULE_INIT(BluetoothHciSocket::Init) {
   Nan::SetPrototypeMethod(tmpl, "write", Write);
 
 
-  Nan::Set(target, Nan::New("BluetoothHciSocket").ToLocalChecked(), tmpl->GetFunction(context));
+  Nan::Set(target, Nan::New<String>("BluetoothHciSocket").ToLocalChecked(), tmpl->GetFunction(context).ToLocalChecked());
   // target->Set(context, Nan::New("BluetoothHciSocket").ToLocalChecked(), tmpl->GetFunction(context));
 }
 
