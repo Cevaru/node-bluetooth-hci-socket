@@ -394,13 +394,13 @@ NAN_METHOD(BluetoothHciSocket::BindRaw) {
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
   Local<Context> context = Nan::GetCurrentContext();
 
-  int devId = 0;
+  MaybeLocal<Int32> devId = 0;
   int* pDevId = NULL;
 
   if (info.Length() > 0) {
     Local<Value> arg0 = info[0];
     if (arg0->IsInt32() || arg0->IsUint32()) {
-      devId = arg0->IntegerValue(context);
+      devId = arg0->ToInt32(context).ToLocalChecked()->Value();
 
       pDevId = &devId;
     }
@@ -417,13 +417,13 @@ NAN_METHOD(BluetoothHciSocket::BindUser) {
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
   Local<Context> context = Nan::GetCurrentContext();
 
-  int devId = 0;
+  MaybeLocal<Int32> devId = 0;
   int* pDevId = NULL;
 
   if (info.Length() > 0) {
     Local<Value> arg0 = info[0];
     if (arg0->IsInt32() || arg0->IsUint32()) {
-      devId = arg0->IntegerValue(context);
+      devId = arg0->ToInt32(context).ToLocalChecked()->Value();
 
       pDevId = &devId;
     }
