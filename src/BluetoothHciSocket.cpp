@@ -281,7 +281,7 @@ void BluetoothHciSocket::emitErrnoError() {
 
   Local<Value> argv[2] = {
     Nan::New("error").ToLocalChecked(),
-    error
+    error.ToLocalChecked()
   };
 
   Nan::AsyncResource::runInAsyncScope(Nan::New<Object>(this->This), Nan::New("emit").ToLocalChecked(), 2, argv);
