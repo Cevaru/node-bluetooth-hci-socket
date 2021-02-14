@@ -110,7 +110,6 @@ Nan::Persistent<FunctionTemplate> BluetoothHciSocket::constructor_template;
 NAN_MODULE_INIT(BluetoothHciSocket::Init) {
   Nan::HandleScope scope;
 
-  Local<Context> context = Nan::GetCurrentContext();
   Local<FunctionTemplate> tmpl = Nan::New<FunctionTemplate>(New);
   constructor_template.Reset(tmpl);
 
@@ -127,9 +126,11 @@ NAN_MODULE_INIT(BluetoothHciSocket::Init) {
   Nan::SetPrototypeMethod(tmpl, "stop", Stop);
   Nan::SetPrototypeMethod(tmpl, "write", Write);
 
-
-  Nan::Set(target, Nan::New<String>("BluetoothHciSocket").ToLocalChecked(), tmpl->GetFunction(context).ToLocalChecked());
-  // target->Set(context, Nan::New("BluetoothHciSocket").ToLocalChecked(), tmpl->GetFunction(context));
+  Nan::Set(
+    target,
+    Nan::New<String>("BluetoothHciSocket").ToLocalChecked(),
+    Nan::GetFunction(tmpl).ToLocalChecked()
+  );
 }
 
 BluetoothHciSocket::BluetoothHciSocket() :
@@ -252,8 +253,7 @@ void BluetoothHciSocket::poll() {
       Nan::CopyBuffer(data, length).ToLocalChecked()
     };
 
-    Nan::AsyncResource resource("nan:makeCallback");
-    resource.runInAsyncScope(Nan::New<Object>(this->This), Nan::New("emit").ToLocalChecked(), 2, argv);
+    Nan::MakeCallback(Nan::New<Object>(this->This), Nan::New("emit").ToLocalChecked(), 2, argv);
   }
 }
 
@@ -270,23 +270,28 @@ void BluetoothHciSocket::write_(char* data, int length) {
 void BluetoothHciSocket::emitErrnoError() {
   Nan::HandleScope scope;
 
-  Local<Context> context = Nan::GetCurrentContext();
   Local<Object> globalObj = Nan::GetCurrentContext()->Global();
-  Local<Function> errorConstructor = Local<Function>::Cast(globalObj->Get(context, Nan::New("Error").ToLocalChecked()));
+  Local<Function> errorConstructor = Local<Function>::Cast(
+    Nan::Get(globalObj, Nan::New("Error").ToLocalChecked()).ToLocalChecked()
+  );
 
   Local<Value> constructorArgs[1] = {
     Nan::New(strerror(errno)).ToLocalChecked()
   };
 
-  MaybeLocal<Object> error = errorConstructor->NewInstance(context, 1, constructorArgs);
+  Local<Value> error = Nan::NewInstance(errorConstructor, 1, constructorArgs).ToLocalChecked();
 
   Local<Value> argv[2] = {
     Nan::New("error").ToLocalChecked(),
-    error.ToLocalChecked()
+    error
   };
 
-  Nan::AsyncResource resource("nan:makeCallback");
-  resource.runInAsyncScope(Nan::New<Object>(this->This), Nan::New("emit").ToLocalChecked(), 2, argv);
+  Nan::MakeCallback(
+    Nan::New<Object>(this->This),
+    Nan::New("emit").ToLocalChecked(),
+    2,
+    argv
+  );
 }
 
 int BluetoothHciSocket::devIdFor(int* pDevId, bool isUp) {
@@ -392,15 +397,14 @@ NAN_METHOD(BluetoothHciSocket::BindRaw) {
   Nan::HandleScope scope;
 
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
-  Local<Context> context = Nan::GetCurrentContext();
 
-  MaybeLocal<Int32> devId = Nan::New<Int32>(0);
-  MaybeLocal<Int32*> pDevId = Nan::Null();
+  int devId = 0;
+  int* pDevId = NULL;
 
   if (info.Length() > 0) {
     Local<Value> arg0 = info[0];
     if (arg0->IsInt32() || arg0->IsUint32()) {
-      devId = arg0->ToInt32(context).ToLocalChecked()->Value();
+      devId = arg0->IntegerValue(Nan::GetCurrentContext()).ToChecked();
 
       pDevId = &devId;
     }
@@ -415,15 +419,14 @@ NAN_METHOD(BluetoothHciSocket::BindUser) {
   Nan::HandleScope scope;
 
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
-  Local<Context> context = Nan::GetCurrentContext();
 
-  MaybeLocal<Int32> devId = Nan::New<Int32>(0);
-  MaybeLocal<Int32*> pDevId = Nan::Null();
+  int devId = 0;
+  int* pDevId = NULL;
 
   if (info.Length() > 0) {
     Local<Value> arg0 = info[0];
     if (arg0->IsInt32() || arg0->IsUint32()) {
-      devId = arg0->ToInt32(context).ToLocalChecked()->Value();
+      devId = arg0->IntegerValue(Nan::GetCurrentContext()).ToChecked();
 
       pDevId = &devId;
     }
@@ -458,8 +461,6 @@ NAN_METHOD(BluetoothHciSocket::GetDeviceList) {
   Nan::HandleScope scope;
 
   BluetoothHciSocket* p = node::ObjectWrap::Unwrap<BluetoothHciSocket>(info.This());
-  Local<Context> context = Nan::GetCurrentContext();
-  Maybe<bool> setResult = true;
 
   struct hci_dev_list_req *dl;
   struct hci_dev_req *dr;
@@ -478,12 +479,12 @@ NAN_METHOD(BluetoothHciSocket::GetDeviceList) {
       bool devUp = dr->dev_opt & (1 << HCI_UP);
       if (dr != NULL) {
         v8::Local<v8::Object> obj = Nan::New<v8::Object>();
-        setResult = obj->Set(context, Nan::New("devId").ToLocalChecked(), Nan::New<Number>(devId));
-        setResult = obj->Set(context, Nan::New("devUp").ToLocalChecked(), Nan::New<Boolean>(devUp));
-        setResult = obj->Set(context, Nan::New("idVendor").ToLocalChecked(), Nan::Null());
-        setResult = obj->Set(context, Nan::New("idProduct").ToLocalChecked(), Nan::Null());
-        setResult = obj->Set(context, Nan::New("busNumber").ToLocalChecked(), Nan::Null());
-        setResult = obj->Set(context, Nan::New("deviceAddress").ToLocalChecked(), Nan::Null());
+        Nan::Set(obj, Nan::New("devId").ToLocalChecked(), Nan::New<Number>(devId));
+        Nan::Set(obj, Nan::New("devUp").ToLocalChecked(), Nan::New<Boolean>(devUp));
+        Nan::Set(obj, Nan::New("idVendor").ToLocalChecked(), Nan::Null());
+        Nan::Set(obj, Nan::New("idProduct").ToLocalChecked(), Nan::Null());
+        Nan::Set(obj, Nan::New("busNumber").ToLocalChecked(), Nan::Null());
+        Nan::Set(obj, Nan::New("deviceAddress").ToLocalChecked(), Nan::Null());
         Nan::Set(deviceList, di++, obj);
       }
     }
